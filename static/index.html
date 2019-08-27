@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+   <meta charset="utf-8">
+   <link rel="stylesheet" href="https://unpkg.com/sakura.css/css/sakura.css" type="text/css">
+   <style type="text/css">
+      ol {
+         list-style-type: none;
+      }
+      #questionLabel {
+         float: left;
+      }
+      #multiSelect {
+         float: right;
+         width: 300px;
+         margin-top: 1.75em;
+      }
+   </style>
+</head>
+
+<body>
+   <div id="app">
+      <router-view></router-view>
+   </div>
+
+   <script type="text/x-template" id="index">
+      <div>
+         <h3 id="questionLabel">Question:</h3><label id="multiSelect"><input type="checkbox" v-model="isMultiSelect">Allow respondents to select more than one choice</label>
+         <textarea id="question" v-model="question"></textarea>
+         <h3>Choices:</h3>
+         <ol>
+            <li v-for="(item, index) in choices">
+               <input type="text" placeholder="enter choice" v-model="item.choice" v-on:keyup="keyup" :id="index">
+            </li>
+         </ol>
+         <button v-on:click="surveySubmit">Submit</button>
+         <div v-if="polls.length">
+            <h5>Your polls:</h5>
+            <ul>
+               <li v-for="(item, index) in polls.slice().reverse()">
+                  <router-link :to="{path: '/poll/' + item}">{{origin + '/poll/' + item}}</router-link>
+               </li>
+            </ul>
+         </div>
+      </div>
+   </script>
+
+   <script type="text/x-template" id="poll">
+      <div>
+         <h5>{{question}}</h5>
+         <div v-if="hasVoted">
+            <apexchart v-if="resultsChart.series[0].data.length"
+                       width="500" type="bar"
+                       :options="resultsChart.options"
+                       :series="resultsChart.series">
+            </apexchart>
+         </div>
+         <div v-else>
+            <fieldset>
+               <label v-for="(item, index) in choices">
+                  <input v-if="isMultiSelect" type="checkbox" v-model="votes" :value="index">
+                  <input v-else type="radio" v-model="votes" :value="index">
+                  {{item.choice}}
+               </label>
+            </fieldset>
+            <button v-on:click="voteSubmit">Vote</button>
+         </div>
+      </div>
+   </script>
+
+   <script src="https://unpkg.com/vue"></script>
+   <script src="https://unpkg.com/vue-router@2.0.0/dist/vue-router.js"></script>
+   <script src="https://unpkg.com/apexcharts"></script>
+   <script src="https://unpkg.com/vue-apexcharts"></script>
+   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+   <script src="static/app.js"></script>
+</body>
+</html>
